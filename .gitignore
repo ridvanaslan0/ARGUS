@@ -1,0 +1,29 @@
+# Build output
+build/
+*.obj
+*.o
+*.exe
+*.pdb
+*.ilk
+*.lib
+
+# Build logs
+*.log
+bld.log
+
+# Editor / OS noise
+.vs/
+.vscode/
+.idea/
+*.swp
+*.tmp
+Thumbs.db
+desktop.ini
+.DS_Store
+._*
+
+# Local baselines produced by integrity --mode create
+*.manifest
+
+# Editor swap
+*~

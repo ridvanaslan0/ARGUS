@@ -1,0 +1,22 @@
+# Normalize text handling across platforms
+* text=auto
+
+# Shell scripts must stay LF or they break on Linux/macOS
+*.sh    text eol=lf
+*.command text eol=lf
+
+# Windows batch files must stay CRLF
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Sources: LF in the repository, native on checkout
+*.cpp   text eol=lf
+*.h     text eol=lf
+*.md    text eol=lf
+
+# Binary
+*.exe   binary
+*.obj   binary
+*.pdb   binary
+*.png   binary
+*.ico   binary
