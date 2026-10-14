@@ -1,4 +1,4 @@
-# argus
+# ARGUS
 
 **Twenty-five tools. One binary. No dependencies.**
 
