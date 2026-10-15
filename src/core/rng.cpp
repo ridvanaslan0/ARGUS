@@ -12,7 +12,9 @@
 #else
 #  include <unistd.h>
 #  include <fcntl.h>
-#  include <sys/random.h>
+#  if defined(__linux__)
+#    include <sys/random.h>
+#  endif
 #endif
 
 namespace ck {
@@ -44,25 +46,30 @@ bool osRandom(uint8_t* out, size_t n) {
         }
         return true;
     }
-    return false;
+return false;
 #else
     size_t got = 0;
+#if defined(__linux__)
     while (got < n) {
         ssize_t r = getrandom(out + got, n - got, 0);
-        if (r <= 0) {
-            int fd = open("/dev/urandom", O_RDONLY);
-            if (fd < 0) return false;
-            while (got < n) {
-                ssize_t rr = read(fd, out + got, n - got);
-                if (rr <= 0) break;
-                got += (size_t)rr;
-            }
-            close(fd);
-            return got == n;
-        }
+        if (r <= 0) break;
         got += (size_t)r;
     }
-    return true;
+    if (got == n) return true;
+#endif
+    // macOS and any platform without getrandom(2): /dev/urandom is a CSPRNG
+    // on every unix we ship to, and is not subject to rate limits.
+    while (got < n) {
+        int fd = open("/dev/urandom", O_RDONLY);
+        if (fd < 0) return false;
+        while (got < n) {
+            ssize_t rr = read(fd, out + got, n - got);
+            if (rr <= 0) break;
+            got += (size_t)rr;
+        }
+        close(fd);
+    }
+return got == n;
 #endif
 }
 
