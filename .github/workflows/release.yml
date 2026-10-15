@@ -61,6 +61,16 @@ jobs:
           $BIN version
           $BIN aes --selftest
 
+      - name: NIST SP 800-22 battery
+        shell: bash
+        continue-on-error: true
+        run: |
+          # Statistical tests are probabilistic at alpha=0.01, so an occasional
+          # failure is expected and must not block a release. The deterministic
+          # gate is the known-answer self-test above plus the smoke suite.
+          if [ "${{ runner.os }}" = "Windows" ]; then BIN=./build/argus.exe; else BIN=./build/argus; fi
+          $BIN rng-test --bits 1048576 || echo "::warning::statistical test below alpha (expected occasionally)"
+
       - name: tool smoke test
         if: runner.os == 'Linux'
         run: sh tests/smoke.sh build/argus

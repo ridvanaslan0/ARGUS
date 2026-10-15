@@ -4,16 +4,20 @@ title argus build
 
 if not exist build mkdir build
 
+rem A CI runner (or an already-initialised shell) hands us a working compiler,
+rem so only look for vcvars when cl is genuinely missing.
+where cl >nul 2>&1
+if not errorlevel 1 goto :have_toolchain
+
 set "VSWHERE=%ProgramFiles%"
 if not exist "%VSWHERE%\Microsoft Visual Studio" set "VSWHERE=%ProgramFiles(x86)%"
 
 set VCVARS=
-if exist "%VSWHERE%\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" set VCVARS=%VSWHERE%\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat
-if not defined VCVARS if exist "%VSWHERE%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" set VCVARS=%VSWHERE%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat
-if not defined VCVARS if exist "%VSWHERE%\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat" set VCVARS=%VSWHERE%\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat
-if not defined VCVARS if exist "%VSWHERE%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" set VCVARS=%VSWHERE%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat
-if not defined VCVARS if exist "%VSWHERE%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set VCVARS=%VSWHERE%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
-if not defined VCVARS if exist "%VSWHERE%\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set VCVARS=%VSWHERE%\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat
+for %%V in (18 2022) do (
+    for %%E in (Community Enterprise Professional BuildTools) do (
+        if not defined VCVARS if exist "%VSWHERE%\Microsoft Visual Studio\%%V\%%E\VC\Auxiliary\Build\vcvars64.bat" set "VCVARS=%VSWHERE%\Microsoft Visual Studio\%%V\%%E\VC\Auxiliary\Build\vcvars64.bat"
+    )
+)
 
 if not defined VCVARS (
     echo [X] MSVC toolchain not found. Install "Desktop development with C++".
@@ -27,6 +31,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:have_toolchain
 echo   compiling 25 tools ...
 echo.
 
