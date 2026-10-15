@@ -14,6 +14,10 @@
 *.h     text eol=lf
 *.md    text eol=lf
 
+# CI and shell scripts must stay LF or the runners break
+*.yml   text eol=lf
+*.sh    text eol=lf
+
 # Binary
 *.exe   binary
 *.obj   binary

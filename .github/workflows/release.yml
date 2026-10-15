@@ -1,0 +1,156 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: tag to publish (must already exist)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+          - name: macos
+            os: macos-latest
+          - name: windows
+            os: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: install build tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y g++
+
+      - name: build (unix)
+        if: runner.os != 'Windows'
+        run: sh build.sh
+
+      - name: build (windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" || call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          build.bat
+
+      - name: verify before shipping
+        shell: bash
+        run: |
+          set -e
+          if [ "${{ runner.os }}" = "Windows" ]; then BIN=./build/argus.exe; else BIN=./build/argus; fi
+          $BIN version
+          $BIN aes --selftest
+
+      - name: tool smoke test
+        if: runner.os == 'Linux'
+        run: sh tests/smoke.sh build/argus
+
+      - name: package (unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -e
+          mkdir -p "dist/argus-${{ matrix.name }}"
+          cp build/argus "dist/argus-${{ matrix.name }}/argus"
+          chmod +x "dist/argus-${{ matrix.name }}/argus"
+          cp README.md "dist/argus-${{ matrix.name }}/README.md"
+          (cd dist && tar czf "argus-${{ matrix.name }}.tar.gz" "argus-${{ matrix.name }}")
+          rm -rf "dist/argus-${{ matrix.name }}"
+
+      - name: package (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\argus-windows | Out-Null
+          Copy-Item build\argus.exe dist\argus-windows\argus.exe
+          Copy-Item README.md dist\argus-windows\README.md
+          Copy-Item -Recurse run dist\argus-windows\run
+          Compress-Archive -Path dist\argus-windows\* -DestinationPath dist\argus-windows.zip
+          Remove-Item -Recurse -Force dist\argus-windows
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.name }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: publish release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: build notes
+        run: |
+          tag="${{ github.event.inputs.tag || github.ref_name }}"
+          {
+            echo "# argus \`$tag\`"
+            echo
+            echo "Twenty-five tools. One binary. No third-party dependencies."
+            echo
+            echo "| Platform | File |"
+            echo "|---|---|"
+            echo "| Linux x86-64 | \`argus-linux.tar.gz\` |"
+            echo "| macOS | \`argus-macos.tar.gz\` |"
+            echo "| Windows x86-64 | \`argus-windows.zip\` |"
+            echo
+            echo "## Verify before you trust it"
+            echo
+            echo '```'
+            echo "./argus aes --selftest     # FIPS-197 + NIST GCM known-answer vectors"
+            echo "./argus rng-test           # NIST SP 800-22 over the OS CSPRNG"
+            echo '```'
+            echo
+            echo "Each binary is built from the tagged commit on its own runner and has"
+            echo "to pass both self-tests plus a 32-case tool smoke suite before upload."
+            echo
+            echo "## Quick start"
+            echo
+            echo '```sh'
+            echo "tar xzf argus-linux.tar.gz && cd argus-linux"
+            echo "./argus run          # interactive menu"
+            echo "./argus list         # all 25 tools"
+            echo '```'
+            echo
+            echo "```bat"
+            echo "argus.exe list"
+            echo "```"
+            echo
+            echo "Active scanners refuse to run unless you pass \`--i-own-this\` or list the"
+            echo "target in \`~/.argus/allow.txt\`."
+          } > NOTES.md
+
+      - name: create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "argus $TAG" \
+            --notes-file NOTES.md \
+            --verify-tag \
+            artifacts/*

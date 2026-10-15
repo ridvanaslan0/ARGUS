@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+          - name: macos
+            os: macos-latest
+          - name: windows
+            os: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install build tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y g++
+
+      - name: build (unix)
+        if: runner.os != 'Windows'
+        run: sh build.sh
+
+      - name: build (windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" || call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          build.bat
+
+      - name: crypto self-test
+        shell: bash
+        run: |
+          set -e
+          if [ "${{ runner.os }}" = "Windows" ]; then BIN=./build/argus.exe; else BIN=./build/argus; fi
+          $BIN aes --selftest
+          $BIN rng-test --bits 262144
+
+      - name: tool smoke test
+        if: runner.os == 'Linux'
+        run: sh tests/smoke.sh build/argus
+
+      - name: upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: argus-${{ matrix.name }}
+          path: |
+            build/argus
+            build/argus.exe
+          if-no-files-found: error
