@@ -59,7 +59,7 @@ std::string rule(int w) {
 void banner() {
     for (int i = 0; i < 5; ++i)
    ck::ui::emit(S_NAME + BANNER_ART[i] + S_RESET + "\n");
-    ck::ui::emit("  " + S_BOLD + "v2.0" + S_RESET + " " + S_DIM + "\u2022 25 tools" +
+    ck::ui::emit("  " + S_BOLD + "v1.0" + S_RESET + " " + S_DIM + "\u2022 25 tools" +
                 S_RESET + " " + S_DIM + "\u2022 made by " + S_RESET + S_PURPLE + "Rio" +
                 S_RESET + "\n\n");
 }
@@ -280,7 +280,7 @@ int main(int argc, char** argv) {
             }
         }
     } else if (cmd == "version" || cmd == "--version" || cmd == "-v") {
-        ck::ui::emitf("argus 2.0  %s25 tools  |  built %s%s\n", C_DIM, __DATE__, C_RESET);
+        ck::ui::emitf("argus 1.0  %s25 tools  |  built %s%s\n", C_DIM, __DATE__, C_RESET);
     } else if (cmd == "list" || cmd == "ls") {
         listTools(rest.empty() ? "" : rest[0]);
     } else if (cmd == "run" || cmd == "ui" || cmd == "menu") {

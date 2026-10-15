@@ -78,10 +78,10 @@ Exit codes are meaningful and stable, so the tools drop straight into CI:
 | `codec` | base64 / base64url / base32 / base58 / hex / urlencode |
 | `entropy` | Shannon entropy, chi-square and LZ77 compressibility to tell packed/encrypted from plain |
 | `aes` | AES-128/192/256 ECB-CBC-CTR-**GCM**; **self-validates against FIPS-197 and NIST GCM vectors** |
-| `cipher` | Caesar/ROT-N, Atbash, Vigenère, XOR, rail-fence + English frequency cracking |
+| `cipher` | Caesar/ROT-N, Atbash, VigenÃ¨re, XOR, rail-fence + English frequency cracking |
 | `jwt` | JWT decode and audit: `alg=none`, exp/nbf/iat, aud/iss, embedded JWK, jku/x5u SSRF |
-| `rsa-audit` | Modulus size, weak exponent, small prime factors, perfect square, p×q consistency |
-| `rng-test` | **NIST SP 800-22** battery: monobit, block frequency, runs, longest-run, cusum, apEnt, serial, pairwise — 12 tests |
+| `rsa-audit` | Modulus size, weak exponent, small prime factors, perfect square, pÃ—q consistency |
+| `rng-test` | **NIST SP 800-22** battery: monobit, block frequency, runs, longest-run, cusum, apEnt, serial, pairwise â€” 12 tests |
 
 ### Passwords & secrets (3)
 
@@ -130,7 +130,7 @@ same synopsis plus the live category.
 
 ### Cryptography
 
-#### `hash` — digests of strings or files
+#### `hash` â€” digests of strings or files
 ```
 argus hash --alg sha256,sha3-256 [--file <path> | <string> | --stdin]
 ```
@@ -138,20 +138,20 @@ Algorithms: `md5 sha1 sha224 sha256 sha384 sha512 sha3-224 sha3-256 sha3-384 sha
 Multiple algorithms produce a labelled table in one pass. Input is taken from
 `--file`, the first positional argument, or `--stdin`, in that order.
 
-#### `hash-id` — identify an unknown hash
+#### `hash-id` â€” identify an unknown hash
 ```
 argus hash-id <hash>  |  argus hash-id --file hashes.txt
 ```
 Matches length, form (hex/base64/decimal) and entropy against every supported
 algorithm, then flags collision risk for MD5, SHA-1 and truncated variants.
 
-#### `hmac` — keyed digest with key-strength guidance
+#### `hmac` â€” keyed digest with key-strength guidance
 ```
 argus hmac --key <secret> [--msg <text> | --file <path>] [--alg sha256,sha512]
 ```
 Emits the MAC plus a risk score driven by the actual key length in bytes.
 
-#### `codec` — encoding round-trip
+#### `codec` â€” encoding round-trip
 ```
 argus codec --enc base64 <text>   argus codec --dec base64 <b64>
 ```
@@ -159,7 +159,7 @@ Encodings: `base64 base64url base32 base58 hex urlencode`. Decoding reports the
 recovered byte count and a charset breakdown, which is how encoded payloads are
 often spotted.
 
-#### `entropy` — randomness forensics
+#### `entropy` â€” randomness forensics
 ```
 argus entropy [--file <path> | <string> | --stdin]
 ```
@@ -167,7 +167,7 @@ Shannon entropy per byte, chi-square, and an LZ77 compressibility estimate.
 Used to tell packed/encrypted content from plain text, and to flag low-entropy
 keys.
 
-#### `aes` — block cipher with known-answer self-test
+#### `aes` â€” block cipher with known-answer self-test
 ```
 argus aes --selftest
 argus aes --mode gcm --bits 256 --key-hex <64 hex> --iv-hex <24 hex> --in <text>
@@ -175,11 +175,11 @@ argus aes --mode gcm --key-hex <64 hex> --iv-hex <24 hex> --cipher-hex <ct> --ta
 ```
 Modes: `ecb cbc ctr gcm`. `--selftest` runs the FIPS-197 vectors for all three
 key sizes, the NIST GCM test cases, a round trip, and **tag rejection on a
-tampered ciphertext**. Key material must be exactly 16, 24 or 32 bytes — an
+tampered ciphertext**. Key material must be exactly 16, 24 or 32 bytes â€” an
 invalid size is a hard error, never a silent empty result. Use `--key` for raw
 bytes and `--key-hex` for hex.
 
-#### `cipher` — classical cipher lab
+#### `cipher` â€” classical cipher lab
 ```
 argus cipher --algo caesar --shift 13 "text"
 argus cipher --algo caesar --crack "Uryyb"
@@ -188,24 +188,24 @@ argus cipher --algo vigenere --key secret "AttackAtDawn"
 Algorithms: `caesar rot rot13 atbash vigenere xor railfence`. `--crack` scores all
 26 ROT shifts by English frequency and ranks them.
 
-#### `jwt` — token audit
+#### `jwt` â€” token audit
 ```
 argus jwt --token <jwt>  |  argus jwt --token <jwt> --secret <hmac-key>
 ```
 Checks `alg=none` and algorithm confusion, `exp`/`nbf`, `aud`/`iss`, embedded JWK,
 and the `jku`/`x5u`/`kid` SSRF and path-traversal angles.
 
-#### `rsa-audit` — RSA key health
+#### `rsa-audit` â€” RSA key health
 ```
 argus rsa-audit --file server.pem
 argus rsa-audit --n <hex|dec|b64> [--e 65537] [--d ...] [--p ...] [--q ...]
 ```
 Reads PKCS#1, PKCS#8 and SubjectPublicKeyInfo **without any external
 dependency**. Reports modulus size, even moduli, small prime divisors, perfect
-squares, p×q consistency, Wiener's/Fermat closeness, shared factors between
+squares, pÃ—q consistency, Wiener's/Fermat closeness, shared factors between
 n/e/d, and degenerate exponents. A healthy 2048-bit key exits `0`.
 
-#### `rng-test` — NIST SP 800-22 over the OS CSPRNG
+#### `rng-test` â€” NIST SP 800-22 over the OS CSPRNG
 ```
 argus rng-test [--bits 1048576] [--source <file>]
 ```
@@ -216,7 +216,7 @@ against alpha 0.01.
 
 ### Passwords and secrets
 
-#### `pw-audit` — password strength
+#### `pw-audit` â€” password strength
 ```
 argus pw-audit --password "Passw0rd!,Summer2024"
 argus pw-audit --file creds.txt [--top 10]
@@ -225,7 +225,7 @@ Entropy-based scoring with dictionary hits, keyboard walks, sequences, repeats,
 leet substitution, year patterns and cross-file reuse detection. Lists the
 weakest entries first with a strength bar and a crack-time estimate.
 
-#### `pw-gen` — CSPRNG generation
+#### `pw-gen` â€” CSPRNG generation
 ```
 argus pw-gen [--count 5] [--length 24] [--symbols] [--passphrase]
 argus pw-gen --passphrase [--count 3] [--separator -]
@@ -234,7 +234,7 @@ Character-class switches: `--no-caps --no-digits --no-lower --no-symbols`.
 Passphrase mode reports the real word count, character count, word-list size and
 entropy. Values are printed once and never stored.
 
-#### `credscan` — hardcoded secret discovery
+#### `credscan` â€” hardcoded secret discovery
 ```
 argus credscan [--path ./src;./config] [--no-recursive] [--max-size N]
 ```
@@ -244,27 +244,27 @@ are masked in the report.
 
 ### Network
 
-#### `cidr` — subnet arithmetic
+#### `cidr` â€” subnet arithmetic
 ```
 argus cidr 10.0.0.0/24 --split 26 --enum --limit 32
 ```
 Network, broadcast, first/last host, mask, wildcard, address class, RFC1918 scope,
 a VLSM split plan and address enumeration.
 
-#### `portscan` — TCP connect scanner
+#### `portscan` â€” TCP connect scanner
 ```
 argus portscan <host|cidr-host> --ports 22,80,443 [--banner] [--timeout 1200]
 ```
-Rate-limited, non-destructive, TCP connect only — no SYN flood. Captures banners
+Rate-limited, non-destructive, TCP connect only â€” no SYN flood. Captures banners
 when asked and flags interesting services by port number.
 
-#### `hostdisc` — host discovery
+#### `hostdisc` â€” host discovery
 ```
 argus hostdisc 192.168.1.0/24 [--ports 80,443,22] [--threads 64] [--timeout 700]
 ```
 Concurrent probes with PTR lookups and private/public scope labelling.
 
-#### `tls-audit` — TLS configuration
+#### `tls-audit` â€” TLS configuration
 ```
 argus tls-audit --host lab.internal [--port 443] [--i-own-this]
 argus tls-audit --file /etc/nginx/nginx.conf
@@ -274,7 +274,7 @@ parses nginx/apache directives and flags obsolete protocols, RC4/3DES/CBC-only
 cipher lists, missing HSTS, `max-age=0`, missing DH params and stapling problems.
 Exits `1` on any HIGH or CRITICAL configuration finding.
 
-#### `http-audit` — headers, cookies, CORS
+#### `http-audit` â€” headers, cookies, CORS
 ```
 argus http-audit --url https://example.com [--i-own-this]
 argus http-audit --host example.com --scheme http --port 8080 --i-own-this
@@ -291,7 +291,7 @@ wildcards.
 
 ### Defense
 
-#### `win-audit` — Windows posture
+#### `win-audit` â€” Windows posture
 ```
 argus win-audit
 ```
@@ -301,7 +301,7 @@ and NLA, BitLocker, SMB signing, account lockout policy, audit policy, Windows
 Update and local administrators. Run elevated for full coverage; unreadable
 checks are reported as unknown rather than guessed.
 
-#### `log-hunt` — authentication log analysis
+#### `log-hunt` â€” authentication log analysis
 ```
 argus log-hunt --file /var/log/auth.log [--threshold 5] [--since 24h]
 ```
@@ -310,7 +310,7 @@ and by user), successful logins from unusual sources, and notable account events
 such as group additions and privilege changes. Accepts syslog/auth.log text and
 exported Windows XML.
 
-#### `acl-audit` — file and directory permissions
+#### `acl-audit` â€” file and directory permissions
 ```
 argus acl-audit ./config [--no-recursive] [--max 400]
 ```
@@ -318,7 +318,7 @@ Flags Everyone and Authenticated Users grants, world-writable files and
 directories, setuid/setgid bits, and write access inside system directories.
 Includes an ACE-profile distribution table.
 
-#### `integrity` — baseline and tamper detection
+#### `integrity` â€” baseline and tamper detection
 ```
 argus integrity --mode create --path ./bin --out baseline.manifest
 argus integrity --manifest baseline.manifest [--path ./bin]
@@ -329,7 +329,7 @@ obvious in the table.
 
 ### Forensics
 
-#### `pcap` — capture file analysis
+#### `pcap` â€” capture file analysis
 ```
 argus pcap --file capture.pcap [--detail]
 ```
@@ -337,7 +337,7 @@ Reads classic pcap (both endiannesses, micro and nanosecond) and pcapng.
 Reports protocol distribution, top talkers, destination port histogram and
 **SYN sweep detection** across a time window.
 
-#### `sigmatch` — signature matching
+#### `sigmatch` â€” signature matching
 ```
 argus sigmatch ./samples [--show-clean] [--max-size N]
 ```
@@ -347,7 +347,7 @@ note language, cryptominers, PHP webshells, SQLi, XSS, C2 tooling, debug builds)
 Magic and string evidence are scored together, so a file needs more than one
 weak indicator to fire.
 
-#### `x509` — certificate parsing and policy
+#### `x509` â€” certificate parsing and policy
 ```
 argus x509 --file cert.pem  |  argus x509 ./chain.pem
 ```
@@ -409,8 +409,8 @@ argus x509 ./chain.pem
 
 ## Design notes
 
-- **CSPRNG is non-negotiable.** Key generation tries `BCryptGenRandom` →
-  `SystemFunction036` → `getrandom`. If the OS CSPRNG cannot be verified the tool
+- **CSPRNG is non-negotiable.** Key generation tries `BCryptGenRandom` â†’
+  `SystemFunction036` â†’ `getrandom`. If the OS CSPRNG cannot be verified the tool
   says so out loud; it never silently degrades to a deterministic `rand()`.
 - **Verified cryptography.** `aes --selftest` runs the FIPS-197 and NIST GCM
   known-answer vectors, including tag rejection on a tampered ciphertext.
@@ -425,8 +425,8 @@ argus x509 ./chain.pem
 - **Console encoding is handled, not assumed.** On startup the program switches
   the console to UTF-8 and tries to load a TrueType font (Cascadia Mono,
   Consolas, Lucida Console). If the console cannot render Unicode, every glyph
-  is transliterated to ASCII — box drawing becomes `- | +`, `✓` becomes `+`,
-  `█░` become `# .`, and en/em dashes and quotes become ASCII. Output is legible
+  is transliterated to ASCII â€” box drawing becomes `- | +`, `âœ“` becomes `+`,
+  `â–ˆâ–‘` become `# .`, and en/em dashes and quotes become ASCII. Output is legible
   everywhere; it is only plainer in the fallback. All output funnels through a
   single `ui::emit()` chokepoint so nothing can bypass it.
 - **No silent failures.** An invalid AES key size, an unparseable RSA key, an
@@ -439,17 +439,30 @@ argus x509 ./chain.pem
 
 ## Verification
 
-The build is warning-free and the cryptography is self-checking:
+The build is warning-free and the cryptography is self-checking. `rsa-audit` and
+`x509` read keys and certificates with the project's own DER parser rather than
+shelling out to OpenSSL, so they work on a machine with no external tooling
+installed. `http-audit` and live `tls-audit` do use `curl` and `openssl` when
+available and say so plainly when they are not.
+
+Every platform builds and tests itself on each push:
+
+| Platform | Build | Self-test |
+|---|---|---|
+| Linux x86-64 | `g++ -std=c++17 -O2` | known-answer vectors + 32-case tool suite |
+| macOS | `clang++ -std=c++17 -O2` | known-answer vectors |
+| Windows x86-64 | MSVC `/O2 /W4 /MT` | known-answer vectors |
 
 ```
-argus aes --selftest     FIPS-197 + NIST GCM known-answer vectors
-argus rng-test           NIST SP 800-22, 12 tests over the OS CSPRNG
+./argus aes --selftest      # FIPS-197 + NIST GCM known-answer vectors
+./argus rng-test            # NIST SP 800-22 over the OS CSPRNG
+sh tests/smoke.sh           # every tool, real arguments, exit codes asserted
 ```
 
-`rsa-audit` and `x509` read keys and certificates with the project's own DER
-parser rather than shelling out to OpenSSL, so they work on a machine with no
-external tooling installed. `http-audit` and live `tls-audit` do use `curl` and
-`openssl` when available and say so plainly when they are not.
+`tests/smoke.sh` runs all 25 tools against generated fixtures and asserts the
+exit code of each, so a release cannot ship a binary with a broken tool. The
+SP 800-22 battery is reported but does not gate the build: thirteen tests at
+alpha 0.01 fail by chance roughly one run in thirteen.
 
 ## Layout
 
@@ -474,7 +487,7 @@ run/                    per-OS launchers (windows / linux / macos)
   fall back to file/header analysis. Key parsing and cryptography never depend on
   them.
 - The RSA audit does not perform cryptanalysis. It checks structural weaknesses:
-  modulus size, exponent sanity, small prime divisors, perfect squares, p×q
+  modulus size, exponent sanity, small prime divisors, perfect squares, pÃ—q
   consistency.
 - `log-hunt` does not parse binary `.evtx` directly. Export first:
   `wevtutil epl Security C:\Temp\Security.xml`, then point `--file` at the XML.
@@ -482,3 +495,19 @@ run/                    per-OS launchers (windows / linux / macos)
   reported as unknown rather than guessed.
 - `sigmatch` is a heuristic indicator engine, not a verdict. Treat hits as
   leads and confirm against a known-good baseline.
+## License
+
+Copyright (c) 2026 Ridvan Aslan. All rights reserved.
+
+This project is **not** open source and carries no open-source licence. It is
+published so the source can be read, reviewed and verified; public availability
+is not permission.
+
+You may read it, build it, run what you build, and report bugs. You may not
+redistribute it, publish a modified version, or use it in any product or service
+without written consent from the copyright holder. See [LICENSE](LICENSE) for
+the full terms.
+
+Third-party components linked by the tool (the Windows SDK, the statically
+linked MSVC runtime) keep their own permissive licences and are not covered by
+that document. No third-party source is vendored here.

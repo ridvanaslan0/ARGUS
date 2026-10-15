@@ -1,0 +1,66 @@
+argus
+
+Copyright (c) 2026 Ridvan Aslan
+All rights reserved.
+
+This software and its source code are the property of the author. No rights are
+granted to anyone other than the copyright holder without written permission.
+
+NOTICE
+------
+
+This repository is published on GitHub so that the source can be read, reviewed
+and verified. Public availability on GitHub is not a grant of permission. It
+does not confer a licence to copy, modify, redistribute, sublicense, or use the
+software, in whole or in part, for any purpose.
+
+PERMITTED
+---------
+
+  * Cloning or forking the repository, and reading the source.
+  * Building the software yourself from this source.
+  * Running a build you produced, for your own use.
+  * Reporting bugs and suggesting changes.
+
+NOT PERMITTED WITHOUT WRITTEN CONSENT
+--------------------------------------
+
+  * Redistributing the binaries or the source, modified or unmodified.
+  * Publishing a modified version, or a fork that continues this project.
+  * Using the source or binaries in any product, service or commercial offering.
+  * Removing or obscuring the authorship notice from any copy.
+  * Selling, licensing, sublicensing or charging for any of the above.
+
+THIRD-PARTY COMPONENTS
+----------------------
+
+The project links against the following, which carry their own permissive
+licences and are not covered by this document:
+
+  * Windows Sockets, IP Helper API          - Microsoft Windows SDK
+  * BCrypt / SystemFunction036             - Microsoft Windows SDK
+  * Windows Image Component (WIC)          - Microsoft Windows SDK
+  * WinHTTP                                - Microsoft Windows SDK
+  * C runtime, statically linked (/MT)     - Microsoft Visual C++ runtime
+
+No third-party source code is vendored into this repository. curl and OpenSSL
+are used optionally at runtime by `tls-audit` and `http-audit` when they happen
+to be installed; neither is bundled or redistributed here.
+
+NO WARRANTY
+-----------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+INTENDED USE
+------------
+
+argus is a defensive security tool. It is intended for auditing systems you own
+or have written authorisation to test. Active scanning is refused unless a target
+is explicitly authorised, for exactly this reason. Using it against systems you
+do not own or have permission to test may be unlawful.
